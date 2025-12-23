@@ -277,6 +277,7 @@ export class ZoneManager {
             const z = (Math.random() - 0.5) * 0.3;
             positions.setZ(i, z);
         }
+        positions.needsUpdate = true;
         groundGeometry.computeVertexNormals();
         
         const groundMaterial = new THREE.MeshStandardMaterial({
