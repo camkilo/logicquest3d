@@ -358,9 +358,9 @@ class EnergyRoutingPuzzle {
         
         this.game.scene.add(this.crystal);
         
-        // Create angled reflective mirrors (not flat boxes, but curved reflective surfaces)
+        // Create angled reflective mirrors with double-sided visibility
         for (let i = 0; i < 2; i++) {
-            // Use a curved plane for more realistic mirror
+            // Use a curved plane for reflective surface
             const mirrorGeometry = new THREE.PlaneGeometry(2, 2, 16, 16);
             
             // Add slight curvature to mirror surface
@@ -376,7 +376,8 @@ class EnergyRoutingPuzzle {
             const mirrorMaterial = new THREE.MeshStandardMaterial({
                 color: 0x8a9aaa,
                 metalness: 0.95,
-                roughness: 0.05
+                roughness: 0.05,
+                side: THREE.DoubleSide // Double-sided for visibility from all angles
             });
             const mirror = new THREE.Mesh(mirrorGeometry, mirrorMaterial);
             mirror.position.set(

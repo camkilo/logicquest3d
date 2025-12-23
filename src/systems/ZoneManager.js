@@ -479,8 +479,19 @@ export class ZoneManager {
         leftPillar.receiveShadow = true;
         group.add(leftPillar);
         
-        // Right pillar
-        const rightPillar = new THREE.Mesh(pillarGeometry.clone(), archMaterial);
+        // Right pillar with its own geometry and unique displacement
+        const rightPillarGeometry = new THREE.CylinderGeometry(0.4, 0.5, 4, 32);
+        
+        // Add different wear pattern to right pillar for uniqueness
+        const rightPillarPositions = rightPillarGeometry.attributes.position.array;
+        for (let i = 0; i < rightPillarPositions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.05;
+            rightPillarPositions[i] += noise;
+            rightPillarPositions[i + 2] += noise;
+        }
+        rightPillarGeometry.computeVertexNormals();
+        
+        const rightPillar = new THREE.Mesh(rightPillarGeometry, archMaterial);
         rightPillar.position.set(3, 2, 0);
         rightPillar.castShadow = true;
         rightPillar.receiveShadow = true;
@@ -517,16 +528,19 @@ export class ZoneManager {
     }
     
     createChippedStoneWall() {
-        // Create curved stone wall mesh with high detail
-        const geometry = new THREE.PlaneGeometry(12, 14, 32, 32);
+        // Create thick curved stone wall mesh with high detail (not flat plane)
+        const geometry = new THREE.BoxGeometry(12, 14, 1.5, 32, 32, 8);
         
-        // Add vertex displacement for weathered, chipped surface
+        // Add vertex displacement for weathered, chipped surface on both sides
         const positions = geometry.attributes.position.array;
         for (let i = 0; i < positions.length; i += 3) {
             const x = positions[i];
             const y = positions[i + 1];
-            // Create worn, irregular surface with erosion
-            positions[i + 2] = Math.sin(x * 0.5) * 0.3 + Math.cos(y * 0.4) * 0.2 + (Math.random() - 0.5) * 0.4;
+            const z = positions[i + 2];
+            // Create worn, irregular surface with erosion - affects front and back
+            const displacement = Math.sin(x * 0.5) * 0.3 + Math.cos(y * 0.4) * 0.2 + (Math.random() - 0.5) * 0.4;
+            // Apply displacement perpendicular to wall surface
+            positions[i + 2] += displacement * Math.sign(z);
         }
         geometry.computeVertexNormals();
         

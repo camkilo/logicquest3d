@@ -174,8 +174,10 @@ export class Game {
             .copy(playerPos)
             .add(rotatedOffset);
         
-        // Smooth camera follow with lerping for cinematic feel
-        this.camera.position.lerp(targetCameraPos, 0.1);
+        // Smooth camera follow with frame-rate independent lerping for cinematic feel
+        const smoothingSpeed = 5.0; // Adjust for desired smoothness
+        const lerpFactor = Math.min(1.0, this.clock.getDelta() * smoothingSpeed);
+        this.camera.position.lerp(targetCameraPos, lerpFactor);
         
         // Look at point slightly ahead and above the player
         const lookAtOffset = new THREE.Vector3(0, 1.2, -2);

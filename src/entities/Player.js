@@ -64,8 +64,24 @@ export class Player {
         this.mesh.receiveShadow = true;
         this.mesh.position.set(0, 1, 0);
         
-        // Add a curved blade weapon (not a box)
-        const weaponGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.8, 16);
+        // Add a curved blade weapon - flat blade shape with curvature
+        const bladeShape = new THREE.Shape();
+        bladeShape.moveTo(0, 0);
+        bladeShape.lineTo(0.02, 0);
+        bladeShape.lineTo(0.02, 0.8);
+        bladeShape.lineTo(0.01, 0.85); // Tip
+        bladeShape.lineTo(0, 0.8);
+        bladeShape.lineTo(0, 0);
+        
+        const extrudeSettings = {
+            depth: 0.06,
+            bevelEnabled: true,
+            bevelThickness: 0.01,
+            bevelSize: 0.01,
+            bevelSegments: 3
+        };
+        
+        const weaponGeometry = new THREE.ExtrudeGeometry(bladeShape, extrudeSettings);
         const weaponMaterial = new THREE.MeshStandardMaterial({
             color: 0x888888,
             metalness: 0.8,
@@ -74,6 +90,7 @@ export class Player {
         this.weapon = new THREE.Mesh(weaponGeometry, weaponMaterial);
         this.weapon.position.set(0.3, 0, -0.5);
         this.weapon.rotation.x = Math.PI / 2;
+        this.weapon.rotation.z = -Math.PI / 2;
         this.mesh.add(this.weapon);
     }
     
