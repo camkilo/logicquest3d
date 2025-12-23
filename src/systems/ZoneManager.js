@@ -374,8 +374,21 @@ export class ZoneManager {
     createAgedTree() {
         const group = new THREE.Group();
         
-        // Aged trunk with worn material
-        const trunkGeometry = new THREE.CylinderGeometry(0.35, 0.45, 5, 8);
+        // Aged trunk with worn material - high polygon count for smooth curves
+        const trunkGeometry = new THREE.CylinderGeometry(0.35, 0.45, 5, 32);
+        
+        // Add bark texture through vertex displacement
+        const positions = trunkGeometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            const x = positions[i];
+            const z = positions[i + 2];
+            const angle = Math.atan2(z, x);
+            const noise = Math.sin(angle * 8) * 0.03 + (Math.random() - 0.5) * 0.02;
+            positions[i] += noise * Math.sign(x);
+            positions[i + 2] += noise * Math.sign(z);
+        }
+        trunkGeometry.computeVertexNormals();
+        
         const trunkMaterial = new THREE.MeshStandardMaterial({
             color: 0x3a2a1a, // Darker aged wood
             roughness: 0.98,
@@ -387,8 +400,24 @@ export class ZoneManager {
         trunk.receiveShadow = true;
         group.add(trunk);
         
-        // Foliage with muted green
-        const foliageGeometry = new THREE.SphereGeometry(2.2, 8, 8);
+        // Foliage with muted green - higher detail for organic look
+        const foliageGeometry = new THREE.SphereGeometry(2.2, 32, 32);
+        
+        // Add irregular foliage shape through displacement
+        const foliagePositions = foliageGeometry.attributes.position.array;
+        for (let i = 0; i < foliagePositions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.4;
+            const length = Math.sqrt(
+                foliagePositions[i] ** 2 + 
+                foliagePositions[i + 1] ** 2 + 
+                foliagePositions[i + 2] ** 2
+            );
+            foliagePositions[i] += (foliagePositions[i] / length) * noise;
+            foliagePositions[i + 1] += (foliagePositions[i + 1] / length) * noise;
+            foliagePositions[i + 2] += (foliagePositions[i + 2] / length) * noise;
+        }
+        foliageGeometry.computeVertexNormals();
+        
         const foliageMaterial = new THREE.MeshStandardMaterial({
             color: 0x3a4a2a, // Muted green
             roughness: 0.95,
@@ -407,8 +436,19 @@ export class ZoneManager {
     createMossCoveredArch() {
         const group = new THREE.Group();
         
-        // Create arch using torus and pillars
-        const archGeometry = new THREE.TorusGeometry(3, 0.4, 8, 16, Math.PI);
+        // Create arch using torus with higher detail for smooth curves
+        const archGeometry = new THREE.TorusGeometry(3, 0.4, 32, 64, Math.PI);
+        
+        // Add weathering and erosion through vertex displacement
+        const positions = archGeometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.08;
+            positions[i] += noise;
+            positions[i + 1] += noise;
+            positions[i + 2] += noise;
+        }
+        archGeometry.computeVertexNormals();
+        
         const archMaterial = new THREE.MeshStandardMaterial({
             color: 0x4a5a4a, // Cold stone with moss tint
             roughness: 0.98,
@@ -421,16 +461,37 @@ export class ZoneManager {
         arch.receiveShadow = true;
         group.add(arch);
         
-        // Left pillar
-        const pillarGeometry = new THREE.CylinderGeometry(0.4, 0.5, 4, 8);
+        // Left pillar with high detail
+        const pillarGeometry = new THREE.CylinderGeometry(0.4, 0.5, 4, 32);
+        
+        // Add wear and cracks to pillars
+        const pillarPositions = pillarGeometry.attributes.position.array;
+        for (let i = 0; i < pillarPositions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.05;
+            pillarPositions[i] += noise;
+            pillarPositions[i + 2] += noise;
+        }
+        pillarGeometry.computeVertexNormals();
+        
         const leftPillar = new THREE.Mesh(pillarGeometry, archMaterial);
         leftPillar.position.set(-3, 2, 0);
         leftPillar.castShadow = true;
         leftPillar.receiveShadow = true;
         group.add(leftPillar);
         
-        // Right pillar
-        const rightPillar = new THREE.Mesh(pillarGeometry, archMaterial);
+        // Right pillar with its own geometry and unique displacement
+        const rightPillarGeometry = new THREE.CylinderGeometry(0.4, 0.5, 4, 32);
+        
+        // Add different wear pattern to right pillar for uniqueness
+        const rightPillarPositions = rightPillarGeometry.attributes.position.array;
+        for (let i = 0; i < rightPillarPositions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.05;
+            rightPillarPositions[i] += noise;
+            rightPillarPositions[i + 2] += noise;
+        }
+        rightPillarGeometry.computeVertexNormals();
+        
+        const rightPillar = new THREE.Mesh(rightPillarGeometry, archMaterial);
         rightPillar.position.set(3, 2, 0);
         rightPillar.castShadow = true;
         rightPillar.receiveShadow = true;
@@ -440,7 +501,21 @@ export class ZoneManager {
     }
     
     createFallenPillar() {
-        const geometry = new THREE.CylinderGeometry(0.6, 0.7, 6, 8);
+        // High detail cylinder with fractures and erosion
+        const geometry = new THREE.CylinderGeometry(0.6, 0.7, 6, 32);
+        
+        // Add fractured geometry and erosion
+        const positions = geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            const y = positions[i + 1];
+            const noise = (Math.random() - 0.5) * 0.1;
+            // More erosion at the ends (broken parts)
+            const erosionFactor = Math.abs(y / 3) * 0.15;
+            positions[i] += noise + (Math.random() - 0.5) * erosionFactor;
+            positions[i + 2] += noise + (Math.random() - 0.5) * erosionFactor;
+        }
+        geometry.computeVertexNormals();
+        
         const material = new THREE.MeshStandardMaterial({
             color: 0x5a5a4a, // Cold stone gray
             roughness: 0.97,
@@ -453,16 +528,53 @@ export class ZoneManager {
     }
     
     createChippedStoneWall() {
-        const geometry = new THREE.BoxGeometry(12, 14, 2.5);
+        // Create thick sculptured stone wall using plane with extrusion-like depth
+        // Use two parallel curved planes for a realistic thick wall without BoxGeometry
+        const group = new THREE.Group();
+        
+        // Front face
+        const frontGeometry = new THREE.PlaneGeometry(12, 14, 32, 32);
+        const frontPositions = frontGeometry.attributes.position.array;
+        for (let i = 0; i < frontPositions.length; i += 3) {
+            const x = frontPositions[i];
+            const y = frontPositions[i + 1];
+            // Create worn, irregular surface with erosion
+            const displacement = Math.sin(x * 0.5) * 0.3 + Math.cos(y * 0.4) * 0.2 + (Math.random() - 0.5) * 0.4;
+            frontPositions[i + 2] = displacement + 0.75; // Front offset
+        }
+        frontGeometry.computeVertexNormals();
+        
+        // Back face
+        const backGeometry = new THREE.PlaneGeometry(12, 14, 32, 32);
+        const backPositions = backGeometry.attributes.position.array;
+        for (let i = 0; i < backPositions.length; i += 3) {
+            const x = backPositions[i];
+            const y = backPositions[i + 1];
+            // Different erosion pattern for back
+            const displacement = Math.sin(x * 0.6) * 0.25 + Math.cos(y * 0.5) * 0.18 + (Math.random() - 0.5) * 0.35;
+            backPositions[i + 2] = displacement - 0.75; // Back offset
+        }
+        backGeometry.computeVertexNormals();
+        
         const material = new THREE.MeshStandardMaterial({
-            color: 0x3a3a3a, // Rough chipped stone
+            color: 0x3a3a3a,
             roughness: 1.0,
-            metalness: 0.05
+            metalness: 0.05,
+            side: THREE.DoubleSide
         });
-        const wall = new THREE.Mesh(geometry, material);
-        wall.castShadow = true;
-        wall.receiveShadow = true;
-        return wall;
+        
+        const front = new THREE.Mesh(frontGeometry, material);
+        front.castShadow = true;
+        front.receiveShadow = true;
+        group.add(front);
+        
+        const back = new THREE.Mesh(backGeometry, material);
+        back.rotation.y = Math.PI;
+        back.castShadow = true;
+        back.receiveShadow = true;
+        group.add(back);
+        
+        return group;
     }
     
     createWaterPool() {
@@ -499,11 +611,22 @@ export class ZoneManager {
     }
     
     createAncientMechanism() {
-        const geometry = new THREE.BoxGeometry(2, 2, 2);
+        // Create irregular stone slab instead of cube
+        const geometry = new THREE.CylinderGeometry(1.2, 1.4, 1.8, 32);
+        
+        // Add vertex displacement for fractured, ancient stone appearance
+        const positions = geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.15;
+            positions[i] += noise;
+            positions[i + 2] += noise;
+        }
+        geometry.computeVertexNormals();
+        
         const material = new THREE.MeshStandardMaterial({
             color: 0x4a4a3a,
-            roughness: 0.9,
-            metalness: 0.2
+            roughness: 0.95,
+            metalness: 0.1
         });
         const mechanism = new THREE.Mesh(geometry, material);
         mechanism.castShadow = true;
@@ -514,8 +637,18 @@ export class ZoneManager {
     createBrokenStatue() {
         const group = new THREE.Group();
         
-        // Base pedestal
-        const pedestalGeometry = new THREE.CylinderGeometry(1, 1.2, 2, 8);
+        // Base pedestal with high detail
+        const pedestalGeometry = new THREE.CylinderGeometry(1, 1.2, 2, 32);
+        
+        // Add wear and age to pedestal
+        const pedPositions = pedestalGeometry.attributes.position.array;
+        for (let i = 0; i < pedPositions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.08;
+            pedPositions[i] += noise;
+            pedPositions[i + 2] += noise;
+        }
+        pedestalGeometry.computeVertexNormals();
+        
         const stoneMaterial = new THREE.MeshStandardMaterial({
             color: 0x5a5a4a,
             roughness: 0.95,
@@ -527,8 +660,21 @@ export class ZoneManager {
         pedestal.receiveShadow = true;
         group.add(pedestal);
         
-        // Broken statue part (partial column)
-        const statueGeometry = new THREE.CylinderGeometry(0.5, 0.6, 3, 8);
+        // Broken statue part (partial column) with fractures
+        const statueGeometry = new THREE.CylinderGeometry(0.5, 0.6, 3, 32);
+        
+        // Add broken, fractured appearance
+        const statPositions = statueGeometry.attributes.position.array;
+        for (let i = 0; i < statPositions.length; i += 3) {
+            const y = statPositions[i + 1];
+            const noise = (Math.random() - 0.5) * 0.12;
+            // More damage at the top (broken edge)
+            const damageFactor = (y / 1.5 + 1) * 0.1;
+            statPositions[i] += noise * (1 + damageFactor);
+            statPositions[i + 2] += noise * (1 + damageFactor);
+        }
+        statueGeometry.computeVertexNormals();
+        
         const statue = new THREE.Mesh(statueGeometry, stoneMaterial);
         statue.position.y = 3.5;
         statue.rotation.z = 0.3; // Tilted as if broken
@@ -542,8 +688,26 @@ export class ZoneManager {
     createCentralAltar() {
         const group = new THREE.Group();
         
-        // Altar base
-        const baseGeometry = new THREE.CylinderGeometry(3, 4, 1.5, 8);
+        // Altar base with high detail and carved appearance
+        const baseGeometry = new THREE.CylinderGeometry(3, 4, 1.5, 64);
+        
+        // Add carved rings and wear patterns
+        const basePositions = baseGeometry.attributes.position.array;
+        for (let i = 0; i < basePositions.length; i += 3) {
+            const x = basePositions[i];
+            const y = basePositions[i + 1];
+            const z = basePositions[i + 2];
+            const radius = Math.sqrt(x * x + z * z);
+            const angle = Math.atan2(z, x);
+            // Carved rings
+            const carving = Math.sin(radius * 3) * 0.05 + Math.sin(angle * 12) * 0.03;
+            const noise = (Math.random() - 0.5) * 0.05;
+            const offset = carving + noise;
+            basePositions[i + 2] += offset * (z / radius);
+            basePositions[i] += offset * (x / radius);
+        }
+        baseGeometry.computeVertexNormals();
+        
         const stoneMaterial = new THREE.MeshStandardMaterial({
             color: 0x5a5a4a,
             roughness: 0.9,
@@ -602,7 +766,22 @@ export class ZoneManager {
     }
     
     createWornMetalPillar() {
-        const geometry = new THREE.CylinderGeometry(0.4, 0.5, 6, 8);
+        // High detail cylinder with wear patterns
+        const geometry = new THREE.CylinderGeometry(0.4, 0.5, 6, 32);
+        
+        // Add wear, dents, and corrosion to metal
+        const positions = geometry.attributes.position.array;
+        for (let i = 0; i < positions.length; i += 3) {
+            const y = positions[i + 1];
+            const angle = Math.atan2(positions[i + 2], positions[i]);
+            // Worn patterns
+            const wear = Math.sin(angle * 5) * 0.02 + Math.cos(y * 2) * 0.03;
+            const noise = (Math.random() - 0.5) * 0.04;
+            positions[i] += wear + noise;
+            positions[i + 2] += wear + noise;
+        }
+        geometry.computeVertexNormals();
+        
         const material = new THREE.MeshStandardMaterial({
             color: 0x6a5a4a, // Worn metal/bronze
             roughness: 0.85,
@@ -620,15 +799,38 @@ export class ZoneManager {
         
         switch (type) {
             case 'wood':
-                geometry = new THREE.BoxGeometry(0.5, 0.5, 1);
+                // Create organic wood branch shape with high detail
+                geometry = new THREE.CylinderGeometry(0.15, 0.2, 1, 24);
+                
+                // Add irregular bark texture through vertex displacement
+                const woodPositions = geometry.attributes.position.array;
+                for (let i = 0; i < woodPositions.length; i += 3) {
+                    const noise = (Math.random() - 0.5) * 0.05;
+                    woodPositions[i] += noise;
+                    woodPositions[i + 2] += noise;
+                }
+                geometry.computeVertexNormals();
+                
                 material = new THREE.MeshStandardMaterial({
                     color: 0x4a3a2a, // Aged wood
-                    roughness: 0.95,
-                    metalness: 0.02
+                    roughness: 0.98,
+                    metalness: 0.01
                 });
                 break;
             case 'stone':
-                geometry = new THREE.DodecahedronGeometry(0.4);
+                // Increase detail for rough stone chunk
+                geometry = new THREE.DodecahedronGeometry(0.4, 1);
+                
+                // Add erosion and cracks via displacement
+                const stonePositions = geometry.attributes.position.array;
+                for (let i = 0; i < stonePositions.length; i += 3) {
+                    const noise = (Math.random() - 0.5) * 0.1;
+                    stonePositions[i] += noise;
+                    stonePositions[i + 1] += noise;
+                    stonePositions[i + 2] += noise;
+                }
+                geometry.computeVertexNormals();
+                
                 material = new THREE.MeshStandardMaterial({
                     color: 0x5a5a5a, // Rough chipped stone
                     roughness: 0.98,
@@ -636,7 +838,8 @@ export class ZoneManager {
                 });
                 break;
             case 'crystal':
-                geometry = new THREE.OctahedronGeometry(0.4);
+                // Higher detail crystal with more facets
+                geometry = new THREE.OctahedronGeometry(0.4, 1);
                 material = new THREE.MeshStandardMaterial({
                     color: 0x7a9aaa,
                     emissive: 0x5a7a8a,
