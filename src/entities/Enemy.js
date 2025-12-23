@@ -116,8 +116,8 @@ export class Enemy {
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
         
-        // Add glowing eyes for all types
-        const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
+        // Add glowing eyes for all types with higher detail
+        const eyeGeometry = new THREE.SphereGeometry(0.08, 16, 16);
         const eyeMaterial = new THREE.MeshBasicMaterial({
             color: 0xff0000,
             emissive: 0xff0000
@@ -349,7 +349,8 @@ export class Enemy {
         const lootTypes = ['wood', 'stone', 'crystal'];
         const lootType = lootTypes[Math.floor(Math.random() * lootTypes.length)];
         
-        const geometry = new THREE.SphereGeometry(0.3, 8, 8);
+        // Higher detail sphere for smooth loot
+        const geometry = new THREE.SphereGeometry(0.3, 32, 32);
         const material = new THREE.MeshStandardMaterial({
             color: lootType === 'crystal' ? 0x00ffff : lootType === 'stone' ? 0x888888 : 0x8b4513,
             metalness: 0.8,

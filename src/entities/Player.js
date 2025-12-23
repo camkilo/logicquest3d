@@ -51,8 +51,8 @@ export class Player {
     }
     
     createMesh() {
-        // Create a simple capsule for the player
-        const geometry = new THREE.CapsuleGeometry(0.5, 1, 4, 8);
+        // Create a realistic humanoid capsule for the player with smooth geometry
+        const geometry = new THREE.CapsuleGeometry(0.5, 1, 16, 32);
         const material = new THREE.MeshStandardMaterial({
             color: 0x4488ff,
             metalness: 0.3,
@@ -64,8 +64,8 @@ export class Player {
         this.mesh.receiveShadow = true;
         this.mesh.position.set(0, 1, 0);
         
-        // Add a weapon indicator
-        const weaponGeometry = new THREE.BoxGeometry(0.1, 0.5, 0.8);
+        // Add a curved blade weapon (not a box)
+        const weaponGeometry = new THREE.CylinderGeometry(0.05, 0.08, 0.8, 16);
         const weaponMaterial = new THREE.MeshStandardMaterial({
             color: 0x888888,
             metalness: 0.8,
@@ -73,6 +73,7 @@ export class Player {
         });
         this.weapon = new THREE.Mesh(weaponGeometry, weaponMaterial);
         this.weapon.position.set(0.3, 0, -0.5);
+        this.weapon.rotation.x = Math.PI / 2;
         this.mesh.add(this.weapon);
     }
     

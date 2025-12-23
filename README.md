@@ -1,28 +1,30 @@
 # logicquest3d
-Dark fantasy 3D RPG with realistic art direction. Experience three immersive zones with physically-based puzzles, strategic combat, and atmospheric environments. Features realistic materials (aged wood, chipped stone, worn metal), dynamic lighting, and minimal UI design.
+Cinematic 3D fantasy prototype with realistic art direction. Experience three handcrafted zones featuring sculpted environments, physically-based puzzles, strategic combat, and atmospheric lighting. Built with smooth, organic geometry and modern PBR materials for a high-quality visual experience.
 
 ## Features
 
 ### 🎮 Gameplay
-- **Three Connected Zones**: Forest Ruins, Underground Chamber, and Ritual Courtyard
-- **Physical Puzzles**: Weight & pressure plates, rotation logic, energy routing, sequence levers
-- **Enhanced Combat**: Three enemy types (fast melee, ranged magic, heavy guardian) with retreat behavior
-- **Advanced Player Abilities**: Dodge roll and magic projectile with stamina system
-- **Physical Crafting**: Combine 2-3 resources at anvils and altars only
+- **Three Handcrafted Zones**: Forest Ruins with curved stone arches, Underground Chamber with carved halls, and Ritual Courtyard with ancient altars
+- **Physical Puzzles**: Irregular stone slabs on pressure plates, rotating cylindrical pillars with engraved symbols, light beam redirection, sequence levers
+- **Cinematic Combat**: Three enemy types (agile creatures, floating magic entities, armored sentinels) with intelligent AI
+- **Advanced Player Abilities**: Dodge roll and magic projectiles with stamina management
+- **Physical Crafting**: Combine 2-3 resources at anvils and altars
 
-### 🎨 Dark Fantasy Visuals
-- **Art Direction**: Realistic dark fantasy aesthetic with muted color palette
-- **Dynamic Lighting**: Physically-based with warm torchlight amber tones and cold stone grays
-- **Atmospheric Fog**: Volumetric fog with zone-specific colors
-- **Realistic Materials**: Aged wood, rough chipped stone, worn metal with high roughness values
-- **Post-Processing**: Bloom, vignette, SSAO for cinematic feel
+### 🎨 Realistic Fantasy Visuals
+- **Art Direction**: Modern cinematic fantasy with sculpted, organic meshes - NO voxels, cubes, or low-poly geometry
+- **Smooth Geometry**: High polygon counts (32+ segments) for all curved surfaces with vertex displacement for natural detail
+- **PBR Materials**: Physically-based rendering with normal maps, high roughness values (0.95-1.0 for stone), metalness variation
+- **Dynamic Lighting**: Baked + dynamic shadows, warm torchlight amber tones, cold stone grays, volumetric fog
+- **Atmospheric Effects**: Zone-specific fog colors, post-processing with bloom, vignette, and SSAO
+- **Realistic Materials**: Aged wood with bark texture, rough chipped stone with erosion, worn metal with corrosion patterns
 
 ### 🎯 Game Mechanics
-- **First-Person Controls**: WASD movement, mouse look, sprint, jump, dodge roll
+- **Third-Person Camera**: Over-the-shoulder perspective with smooth camera follow and cinematic framing
+- **WASD Movement**: Responsive controls with sprint, jump, and dodge mechanics
 - **Stamina System**: Manage stamina for sprinting, dodging, and magic abilities
-- **Resource Collection**: Gather wood, stone, and crystals
-- **Minimal UI**: Dark semi-transparent panels with serif font, fades when not in combat
-- **Zone Progression**: Solve puzzles and defeat enemies to unlock new areas
+- **Resource Collection**: Gather organic wood branches, rough stone chunks, and faceted crystals
+- **Minimal UI**: Dark semi-transparent panels with serif font, dynamically fades when not in combat
+- **Zone Progression**: Solve physical puzzles and defeat enemies to unlock new handcrafted areas
 
 ## Controls
 
@@ -37,24 +39,24 @@ Dark fantasy 3D RPG with realistic art direction. Experience three immersive zon
 
 ## Zones
 
-1. **Forest Ruins** - Moss-covered arches, fallen pillars, overgrown paths with muted greens
-2. **Underground Chamber** - Stone halls with water pools, dripping ceilings, glowing runes
-3. **Ritual Courtyard** - Circular arena with broken statues and central energy altar
+1. **Forest Ruins** - Moss-covered curved arches, fallen cylindrical pillars with fractures, overgrown dirt paths blending into sculpted terrain
+2. **Underground Chamber** - Carved stone halls with irregular rock faces, reflective water pools, glowing runes embedded in weathered walls
+3. **Ritual Courtyard** - Circular arena with broken statues, worn metal pillars, central energy altar with carved rings
 
 ## Puzzle Types
 
-1. **Weight & Pressure** - Push stone blocks onto pressure plates that sink and glow
-2. **Rotation Logic** - Rotate tall stone pillars to align carved symbols
-3. **Energy Routing** - Use mirrors to redirect light beams to power doors
-4. **Sequence Logic** - Pull levers in correct order with reset on mistakes
+1. **Weight & Pressure** - Push irregular stone slabs onto pressure plates that sink and glow when activated
+2. **Rotation Logic** - Rotate tall cylindrical stone pillars to align engraved stone ring symbols
+3. **Energy Routing** - Use angled mirrors to redirect light beams and power ancient mechanisms
+4. **Sequence Logic** - Pull levers in correct order with visual feedback and reset on mistakes
 
 ## Enemy Types
 
-- **Fast Melee** - Agile creature with quick attacks
-- **Ranged Magic** - Floating enemy with projectile attacks
-- **Slow Heavy Guardian** - Armored foe with powerful melee strikes
+- **Agile Creature** - Fast melee attacker with organic cone-shaped body
+- **Floating Magic Entity** - Ranged projectile attacks with spherical form
+- **Armored Sentinel** - Slow heavy guardian with realistic humanoid proportions
 
-All enemies patrol, chase, attack, and retreat at low health.
+All enemies feature intelligent AI with patrol, chase, attack, and tactical retreat behaviors.
 
 ## Crafting Recipes
 

@@ -1,7 +1,7 @@
 {
   "name": "logicquest3d",
   "version": "1.0.0",
-  "description": "3D cinematic RPG with immersive zones, puzzles, and combat",
+  "description": "Cinematic 3D fantasy prototype with sculpted environments, realistic PBR materials, and organic geometry - no voxels or blocks",
   "main": "src/main.js",
   "type": "module",
   "scripts": {

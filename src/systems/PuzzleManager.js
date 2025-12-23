@@ -79,9 +79,20 @@ class PressurePlatePuzzle {
             this.plates.push(plate);
         }
         
-        // Create movable stone blocks
+        // Create movable irregular stone slabs (not cubes)
         for (let i = 0; i < this.requiredPlates; i++) {
-            const geometry = new THREE.BoxGeometry(1.5, 1.5, 1.5);
+            // Create irregular stone slab using cylinder with displacement
+            const geometry = new THREE.CylinderGeometry(0.8, 0.9, 1.2, 32);
+            
+            // Add irregular, weathered surface to make it look like ancient stone
+            const positions = geometry.attributes.position.array;
+            for (let j = 0; j < positions.length; j += 3) {
+                const noise = (Math.random() - 0.5) * 0.12;
+                positions[j] += noise;
+                positions[j + 2] += noise;
+            }
+            geometry.computeVertexNormals();
+            
             const material = new THREE.MeshStandardMaterial({
                 color: 0x6a6a5a,
                 roughness: 0.95,
@@ -188,8 +199,22 @@ class RotationPillarPuzzle {
         for (let i = 0; i < 4; i++) {
             const group = new THREE.Group();
             
-            // Create tall stone pillar
-            const pillarGeometry = new THREE.CylinderGeometry(0.5, 0.6, 4, 8);
+            // Create tall cylindrical stone pillar with high detail
+            const pillarGeometry = new THREE.CylinderGeometry(0.5, 0.6, 4, 32);
+            
+            // Add carved texture and weathering to pillar
+            const positions = pillarGeometry.attributes.position.array;
+            for (let j = 0; j < positions.length; j += 3) {
+                const y = positions[j + 1];
+                const angle = Math.atan2(positions[j + 2], positions[j]);
+                // Carved rings and wear patterns
+                const carving = Math.sin(y * 4) * 0.02 + Math.cos(angle * 8) * 0.015;
+                const noise = (Math.random() - 0.5) * 0.03;
+                positions[j] += carving + noise;
+                positions[j + 2] += carving + noise;
+            }
+            pillarGeometry.computeVertexNormals();
+            
             const pillarMaterial = new THREE.MeshStandardMaterial({
                 color: 0x6a6a5a,
                 roughness: 0.95,
@@ -201,17 +226,18 @@ class RotationPillarPuzzle {
             pillar.receiveShadow = true;
             group.add(pillar);
             
-            // Add carved symbol (glowing mark)
-            const symbolGeometry = new THREE.BoxGeometry(0.6, 0.3, 0.1);
+            // Add engraved symbol (not a box, but a carved ring shape)
+            const symbolGeometry = new THREE.TorusGeometry(0.3, 0.08, 16, 32);
             const symbolMaterial = new THREE.MeshStandardMaterial({
                 color: 0x7a8a9a,
                 emissive: 0x5a6a7a,
-                emissiveIntensity: 0.3,
+                emissiveIntensity: 0.5,
                 roughness: 0.5,
                 metalness: 0.5
             });
             const symbol = new THREE.Mesh(symbolGeometry, symbolMaterial);
-            symbol.position.set(0, 2.5, 0.55);
+            symbol.position.set(0, 2.5, 0);
+            symbol.rotation.x = Math.PI / 2;
             group.add(symbol);
             
             // Position pillar

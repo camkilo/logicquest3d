@@ -158,13 +158,33 @@ export class Game {
     }
     
     updateCamera() {
-        // First-person camera follows player
+        // Over-the-shoulder third-person camera as per requirements
         const playerPos = this.player.mesh.position;
-        this.camera.position.copy(playerPos);
-        this.camera.position.y += 1.6; // Eye level
+        const playerRotY = this.player.rotation.y;
         
-        // Apply player rotation to camera
-        this.camera.rotation.copy(this.player.rotation);
+        // Camera offset: behind and above the player's shoulder
+        const cameraOffset = new THREE.Vector3(0.8, 2.0, 3.5); // Right shoulder, raised, behind
+        
+        // Rotate offset based on player rotation
+        const rotatedOffset = cameraOffset.clone();
+        rotatedOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), playerRotY);
+        
+        // Calculate target camera position
+        const targetCameraPos = new THREE.Vector3()
+            .copy(playerPos)
+            .add(rotatedOffset);
+        
+        // Smooth camera follow with lerping for cinematic feel
+        this.camera.position.lerp(targetCameraPos, 0.1);
+        
+        // Look at point slightly ahead and above the player
+        const lookAtOffset = new THREE.Vector3(0, 1.2, -2);
+        lookAtOffset.applyAxisAngle(new THREE.Vector3(0, 1, 0), playerRotY);
+        const lookAtPos = new THREE.Vector3()
+            .copy(playerPos)
+            .add(lookAtOffset);
+        
+        this.camera.lookAt(lookAtPos);
     }
     
     onWindowResize() {
