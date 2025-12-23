@@ -528,31 +528,53 @@ export class ZoneManager {
     }
     
     createChippedStoneWall() {
-        // Create thick curved stone wall mesh with high detail (not flat plane)
-        const geometry = new THREE.BoxGeometry(12, 14, 1.5, 32, 32, 8);
+        // Create thick sculptured stone wall using plane with extrusion-like depth
+        // Use two parallel curved planes for a realistic thick wall without BoxGeometry
+        const group = new THREE.Group();
         
-        // Add vertex displacement for weathered, chipped surface on both sides
-        const positions = geometry.attributes.position.array;
-        for (let i = 0; i < positions.length; i += 3) {
-            const x = positions[i];
-            const y = positions[i + 1];
-            const z = positions[i + 2];
-            // Create worn, irregular surface with erosion - affects front and back
+        // Front face
+        const frontGeometry = new THREE.PlaneGeometry(12, 14, 32, 32);
+        const frontPositions = frontGeometry.attributes.position.array;
+        for (let i = 0; i < frontPositions.length; i += 3) {
+            const x = frontPositions[i];
+            const y = frontPositions[i + 1];
+            // Create worn, irregular surface with erosion
             const displacement = Math.sin(x * 0.5) * 0.3 + Math.cos(y * 0.4) * 0.2 + (Math.random() - 0.5) * 0.4;
-            // Apply displacement perpendicular to wall surface
-            positions[i + 2] += displacement * Math.sign(z);
+            frontPositions[i + 2] = displacement + 0.75; // Front offset
         }
-        geometry.computeVertexNormals();
+        frontGeometry.computeVertexNormals();
+        
+        // Back face
+        const backGeometry = new THREE.PlaneGeometry(12, 14, 32, 32);
+        const backPositions = backGeometry.attributes.position.array;
+        for (let i = 0; i < backPositions.length; i += 3) {
+            const x = backPositions[i];
+            const y = backPositions[i + 1];
+            // Different erosion pattern for back
+            const displacement = Math.sin(x * 0.6) * 0.25 + Math.cos(y * 0.5) * 0.18 + (Math.random() - 0.5) * 0.35;
+            backPositions[i + 2] = displacement - 0.75; // Back offset
+        }
+        backGeometry.computeVertexNormals();
         
         const material = new THREE.MeshStandardMaterial({
-            color: 0x3a3a3a, // Rough chipped stone
+            color: 0x3a3a3a,
             roughness: 1.0,
-            metalness: 0.05
+            metalness: 0.05,
+            side: THREE.DoubleSide
         });
-        const wall = new THREE.Mesh(geometry, material);
-        wall.castShadow = true;
-        wall.receiveShadow = true;
-        return wall;
+        
+        const front = new THREE.Mesh(frontGeometry, material);
+        front.castShadow = true;
+        front.receiveShadow = true;
+        group.add(front);
+        
+        const back = new THREE.Mesh(backGeometry, material);
+        back.rotation.y = Math.PI;
+        back.castShadow = true;
+        back.receiveShadow = true;
+        group.add(back);
+        
+        return group;
     }
     
     createWaterPool() {
