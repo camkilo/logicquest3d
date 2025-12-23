@@ -1,24 +1,18 @@
 import * as THREE from 'three';
 
 export class Enemy {
-    constructor(game, position, type = 'basic') {
+    constructor(game, position, type = 'fast_melee') {
         this.game = game;
         this.scene = game.scene;
         this.type = type;
-        this.health = 50;
-        this.maxHealth = 50;
-        this.speed = 2;
-        this.attackRange = 2;
-        this.attackDamage = 10;
-        this.attackCooldown = 0;
-        this.attackDuration = 2;
-        this.isDead = false;
+        
+        // Type-specific properties
+        this.setupTypeProperties();
         
         // AI state
-        this.state = 'patrol'; // patrol, chase, attack
+        this.state = 'patrol'; // patrol, chase, attack, retreat
         this.patrolPoints = [];
         this.currentPatrolIndex = 0;
-        this.detectionRange = 10;
         
         // Movement pattern
         this.patternTime = 0;
@@ -29,36 +23,115 @@ export class Enemy {
         this.generatePatrolPoints(position);
     }
     
+    setupTypeProperties() {
+        switch (this.type) {
+            case 'fast_melee':
+                this.health = 40;
+                this.maxHealth = 40;
+                this.speed = 4;
+                this.attackRange = 2.5;
+                this.attackDamage = 8;
+                this.attackCooldown = 0;
+                this.attackDuration = 1.0;
+                this.detectionRange = 12;
+                this.retreatHealthPercent = 0.3;
+                break;
+            case 'ranged_magic':
+                this.health = 30;
+                this.maxHealth = 30;
+                this.speed = 2;
+                this.attackRange = 10;
+                this.attackDamage = 12;
+                this.attackCooldown = 0;
+                this.attackDuration = 2.5;
+                this.detectionRange = 15;
+                this.retreatHealthPercent = 0.4;
+                break;
+            case 'slow_heavy':
+                this.health = 80;
+                this.maxHealth = 80;
+                this.speed = 1.5;
+                this.attackRange = 3;
+                this.attackDamage = 20;
+                this.attackCooldown = 0;
+                this.attackDuration = 3.0;
+                this.detectionRange = 10;
+                this.retreatHealthPercent = 0.2;
+                break;
+            default:
+                this.health = 40;
+                this.maxHealth = 40;
+                this.speed = 3;
+                this.attackRange = 2.5;
+                this.attackDamage = 10;
+                this.attackCooldown = 0;
+                this.attackDuration = 2.0;
+                this.detectionRange = 10;
+                this.retreatHealthPercent = 0.3;
+        }
+        
+        this.isDead = false;
+    }
+    
     createMesh(position) {
-        // Create enemy geometry
-        const geometry = new THREE.ConeGeometry(0.5, 1.5, 6);
+        let geometry, color, size;
+        
+        // Create enemy geometry based on type
+        switch (this.type) {
+            case 'fast_melee':
+                // Small, agile creature
+                geometry = new THREE.ConeGeometry(0.4, 1.2, 6);
+                color = 0xaa3333;
+                size = 0.9;
+                break;
+            case 'ranged_magic':
+                // Floating magical enemy
+                geometry = new THREE.OctahedronGeometry(0.6);
+                color = 0x6633aa;
+                size = 1.0;
+                break;
+            case 'slow_heavy':
+                // Large guardian
+                geometry = new THREE.BoxGeometry(1, 2, 1);
+                color = 0x555555;
+                size = 1.3;
+                break;
+            default:
+                geometry = new THREE.ConeGeometry(0.5, 1.5, 6);
+                color = 0xff3333;
+                size = 1.0;
+        }
+        
         const material = new THREE.MeshStandardMaterial({
-            color: 0xff3333,
+            color: color,
             metalness: 0.4,
             roughness: 0.6,
-            emissive: 0x330000,
-            emissiveIntensity: 0.5
+            emissive: color,
+            emissiveIntensity: 0.3
         });
         
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.position.copy(position);
+        this.mesh.scale.set(size, size, size);
         this.mesh.castShadow = true;
         this.mesh.receiveShadow = true;
         
-        // Add glowing eyes
-        const eyeGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+        // Add glowing eyes for all types
+        const eyeGeometry = new THREE.SphereGeometry(0.08, 8, 8);
         const eyeMaterial = new THREE.MeshBasicMaterial({
             color: 0xff0000,
             emissive: 0xff0000
         });
         
-        const eye1 = new THREE.Mesh(eyeGeometry, eyeMaterial);
-        eye1.position.set(-0.2, 0.3, 0.4);
-        this.mesh.add(eye1);
-        
-        const eye2 = new THREE.Mesh(eyeGeometry, eyeMaterial);
-        eye2.position.set(0.2, 0.3, 0.4);
-        this.mesh.add(eye2);
+        if (this.type !== 'ranged_magic') {
+            const eye1 = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            eye1.position.set(-0.15, 0.3, 0.35);
+            this.mesh.add(eye1);
+            
+            const eye2 = new THREE.Mesh(eyeGeometry, eyeMaterial);
+            eye2.position.set(0.15, 0.3, 0.35);
+            this.mesh.add(eye2);
+        }
         
         this.scene.add(this.mesh);
     }
@@ -94,8 +167,11 @@ export class Enemy {
         const player = this.game.player;
         const distanceToPlayer = this.mesh.position.distanceTo(player.mesh.position);
         
-        // State machine
-        if (distanceToPlayer < this.attackRange) {
+        // Check if should retreat (low health)
+        const healthPercent = this.health / this.maxHealth;
+        if (healthPercent < this.retreatHealthPercent) {
+            this.state = 'retreat';
+        } else if (distanceToPlayer < this.attackRange) {
             this.state = 'attack';
         } else if (distanceToPlayer < this.detectionRange) {
             this.state = 'chase';
@@ -113,6 +189,9 @@ export class Enemy {
                 break;
             case 'attack':
                 this.attack(delta, player);
+                break;
+            case 'retreat':
+                this.retreat(delta, player);
                 break;
         }
         
@@ -168,20 +247,55 @@ export class Enemy {
         if (this.attackCooldown <= 0) {
             this.attackCooldown = this.attackDuration;
             
-            // Damage player
-            player.takeDamage(this.attackDamage);
+            // Different attack behavior based on type
+            if (this.type === 'ranged_magic') {
+                // Ranged magic attack - create projectile
+                const projectilePos = this.mesh.position.clone().add(new THREE.Vector3(0, 0.5, 0));
+                const direction = new THREE.Vector3()
+                    .subVectors(player.mesh.position, this.mesh.position)
+                    .normalize();
+                
+                this.game.particleSystem.createEnemyMagicProjectile(
+                    projectilePos, 
+                    direction, 
+                    this.attackDamage,
+                    player
+                );
+            } else {
+                // Melee attack - damage player directly if in range
+                const distance = this.mesh.position.distanceTo(player.mesh.position);
+                if (distance < this.attackRange) {
+                    player.takeDamage(this.attackDamage);
+                }
+            }
             
             // Visual feedback
-            this.mesh.material.emissiveIntensity = 1.0;
+            this.mesh.material.emissiveIntensity = 0.8;
             setTimeout(() => {
                 if (!this.isDead) {
-                    this.mesh.material.emissiveIntensity = 0.5;
+                    this.mesh.material.emissiveIntensity = 0.3;
                 }
             }, 200);
             
             // Attack particle effect
             this.game.particleSystem.createAttackEffect(this.mesh.position);
         }
+    }
+    
+    retreat(delta, player) {
+        // Move away from player
+        const awayFromPlayer = new THREE.Vector3()
+            .subVectors(this.mesh.position, player.mesh.position)
+            .normalize();
+        
+        // Move backward faster than normal chase
+        this.mesh.position.add(awayFromPlayer.multiplyScalar(this.speed * 1.5 * delta));
+        
+        // Look at player while retreating
+        this.mesh.lookAt(player.mesh.position);
+        
+        // Visual indicator (darker emissive)
+        this.mesh.material.emissiveIntensity = 0.15;
     }
     
     animate(delta) {
