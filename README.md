@@ -1,28 +1,28 @@
 # logicquest3d
-3D cinematic RPG with small immersive zones. Fully animated characters, realistic textures, dynamic lighting, and particle effects. Players explore, solve logic-based environmental puzzles, craft items by combining 2–3 resources, and fight simple AI enemies with pattern-based behavior. Physics-driven interactions, unlockable zones, and more
+Dark fantasy 3D RPG with realistic art direction. Experience three immersive zones with physically-based puzzles, strategic combat, and atmospheric environments. Features realistic materials (aged wood, chipped stone, worn metal), dynamic lighting, and minimal UI design.
 
 ## Features
 
 ### 🎮 Gameplay
-- **Three Immersive Zones**: Forest, Cave, and Ancient Ruins
-- **Logic-Based Puzzles**: Color sequence puzzles and pressure plate challenges
-- **Crafting System**: Combine 2-3 resources to create weapons, armor, and potions
-- **Combat System**: Fight enemies with pattern-based AI behavior
-- **Zone Progression**: Unlock new areas by solving puzzles and defeating enemies
+- **Three Connected Zones**: Forest Ruins, Underground Chamber, and Ritual Courtyard
+- **Physical Puzzles**: Weight & pressure plates, rotation logic, energy routing, sequence levers
+- **Enhanced Combat**: Three enemy types (fast melee, ranged magic, heavy guardian) with retreat behavior
+- **Advanced Player Abilities**: Dodge roll and magic projectile with stamina system
+- **Physical Crafting**: Combine 2-3 resources at anvils and altars only
 
-### 🎨 Visually Stunning Graphics
-- **Post-Processing Effects**: Bloom, vignette, SSAO, SMAA, chromatic aberration
-- **Dynamic Lighting**: Realistic sun, hemisphere lighting, and rim lights
-- **Particle Systems**: Magic effects, explosions, combat trails, ambient particles
-- **PBR Materials**: Physically-based rendering with metalness and roughness
-- **Atmospheric Effects**: Zone-specific fog and environmental ambiance
+### 🎨 Dark Fantasy Visuals
+- **Art Direction**: Realistic dark fantasy aesthetic with muted color palette
+- **Dynamic Lighting**: Physically-based with warm torchlight amber tones and cold stone grays
+- **Atmospheric Fog**: Volumetric fog with zone-specific colors
+- **Realistic Materials**: Aged wood, rough chipped stone, worn metal with high roughness values
+- **Post-Processing**: Bloom, vignette, SSAO for cinematic feel
 
 ### 🎯 Game Mechanics
-- **First-Person Controls**: WASD movement, mouse look, sprint, and jump
+- **First-Person Controls**: WASD movement, mouse look, sprint, jump, dodge roll
+- **Stamina System**: Manage stamina for sprinting, dodging, and magic abilities
 - **Resource Collection**: Gather wood, stone, and crystals
-- **Inventory System**: 9-slot inventory with visual feedback
-- **Health System**: Combat with damage, healing, and visual feedback
-- **Portal System**: Magical portals for zone transitions
+- **Minimal UI**: Dark semi-transparent panels with serif font, fades when not in combat
+- **Zone Progression**: Solve puzzles and defeat enemies to unlock new areas
 
 ## Controls
 
@@ -30,11 +30,35 @@
 - **Mouse** - Look Around
 - **Space** - Jump
 - **E** - Interact/Collect
-- **C** - Open Crafting
+- **C** - Open Crafting (at anvil/altar)
 - **Left Click** - Attack
-- **Shift** - Sprint
+- **Q** - Magic Ability
+- **Shift** - Sprint / Dodge Roll (when stationary)
+
+## Zones
+
+1. **Forest Ruins** - Moss-covered arches, fallen pillars, overgrown paths with muted greens
+2. **Underground Chamber** - Stone halls with water pools, dripping ceilings, glowing runes
+3. **Ritual Courtyard** - Circular arena with broken statues and central energy altar
+
+## Puzzle Types
+
+1. **Weight & Pressure** - Push stone blocks onto pressure plates that sink and glow
+2. **Rotation Logic** - Rotate tall stone pillars to align carved symbols
+3. **Energy Routing** - Use mirrors to redirect light beams to power doors
+4. **Sequence Logic** - Pull levers in correct order with reset on mistakes
+
+## Enemy Types
+
+- **Fast Melee** - Agile creature with quick attacks
+- **Ranged Magic** - Floating enemy with projectile attacks
+- **Slow Heavy Guardian** - Armored foe with powerful melee strikes
+
+All enemies patrol, chase, attack, and retreat at low health.
 
 ## Crafting Recipes
+
+Must be at an anvil or altar to craft:
 
 - Wood + Wood = Wooden Sword
 - Wood + Stone = Stone Sword
