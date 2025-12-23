@@ -9,6 +9,9 @@ export class Player {
         // Player properties
         this.health = 100;
         this.maxHealth = 100;
+        this.stamina = 100;
+        this.maxStamina = 100;
+        this.staminaRegenRate = 20; // per second
         this.inventory = [];
         this.maxInventorySize = 9;
         
@@ -29,6 +32,16 @@ export class Player {
         // Combat
         this.attackCooldown = 0;
         this.attackDuration = 0.5;
+        
+        // New abilities
+        this.isDodging = false;
+        this.dodgeCooldown = 0;
+        this.dodgeDuration = 0.4;
+        this.dodgeStaminaCost = 25;
+        
+        this.magicCooldown = 0;
+        this.magicDuration = 1.0;
+        this.magicStaminaCost = 30;
         
         // Create player mesh
         this.createMesh();
@@ -90,6 +103,16 @@ export class Player {
             if (e.key === 'c' || e.key === 'C') {
                 this.game.craftingSystem.toggleCraftingPanel();
             }
+            // Dodge roll with Shift key (when not sprinting/moving)
+            if (e.key === 'Shift' && !this.inputManager.isKeyPressed('w') && 
+                !this.inputManager.isKeyPressed('a') && !this.inputManager.isKeyPressed('s') && 
+                !this.inputManager.isKeyPressed('d')) {
+                this.dodgeRoll();
+            }
+            // Magic ability with Q key
+            if (e.key === 'q' || e.key === 'Q') {
+                this.useMagicAbility();
+            }
         });
     }
     
@@ -99,8 +122,24 @@ export class Player {
             this.attackCooldown -= delta;
         }
         
-        // Get input
+        // Update dodge cooldown
+        if (this.dodgeCooldown > 0) {
+            this.dodgeCooldown -= delta;
+        }
+        
+        // Update magic cooldown
+        if (this.magicCooldown > 0) {
+            this.magicCooldown -= delta;
+        }
+        
+        // Regenerate stamina when not sprinting or dodging
         const input = this.inputManager.getInput();
+        if (!input.sprint && !this.isDodging && this.stamina < this.maxStamina) {
+            this.stamina = Math.min(this.maxStamina, this.stamina + this.staminaRegenRate * delta);
+            this.game.uiManager.updateStamina(this.stamina, this.maxStamina);
+        }
+        
+        // Get input
         
         // Calculate movement direction
         const direction = new THREE.Vector3();
@@ -118,8 +157,18 @@ export class Player {
         // Apply rotation to movement direction
         direction.applyEuler(new THREE.Euler(0, this.rotation.y, 0));
         
-        // Calculate speed with sprint
-        const currentSpeed = input.sprint ? this.speed * this.sprintMultiplier : this.speed;
+        // Calculate speed with sprint (consumes stamina)
+        let currentSpeed = this.speed;
+        if (input.sprint && direction.length() > 0 && this.stamina > 0) {
+            currentSpeed = this.speed * this.sprintMultiplier;
+            this.stamina = Math.max(0, this.stamina - 30 * delta);
+            this.game.uiManager.updateStamina(this.stamina, this.maxStamina);
+        }
+        
+        // Apply dodge roll movement if dodging
+        if (this.isDodging) {
+            currentSpeed *= 2.5;
+        }
         
         // Apply horizontal movement
         this.velocity.x = direction.x * currentSpeed;
@@ -267,6 +316,11 @@ export class Player {
     }
     
     takeDamage(amount) {
+        // Check invulnerability from dodge
+        if (this.isInvulnerable) {
+            return;
+        }
+        
         this.health = Math.max(0, this.health - amount);
         this.game.uiManager.updateHealth(this.health, this.maxHealth);
         
@@ -292,5 +346,52 @@ export class Player {
         setTimeout(() => {
             location.reload();
         }, 3000);
+    }
+    
+    dodgeRoll() {
+        if (this.dodgeCooldown > 0 || this.stamina < this.dodgeStaminaCost || this.isDodging) {
+            return;
+        }
+        
+        this.isDodging = true;
+        this.dodgeCooldown = 2.0; // 2 second cooldown
+        this.stamina -= this.dodgeStaminaCost;
+        this.game.uiManager.updateStamina(this.stamina, this.maxStamina);
+        
+        // Make player invulnerable during dodge
+        this.isInvulnerable = true;
+        
+        // Visual effect
+        this.mesh.material.opacity = 0.5;
+        this.mesh.material.transparent = true;
+        
+        // Create dodge particle trail
+        this.game.particleSystem.createDodgeEffect(this.mesh.position);
+        
+        setTimeout(() => {
+            this.isDodging = false;
+            this.isInvulnerable = false;
+            this.mesh.material.opacity = 1.0;
+            this.mesh.material.transparent = false;
+        }, this.dodgeDuration * 1000);
+    }
+    
+    useMagicAbility() {
+        if (this.magicCooldown > 0 || this.stamina < this.magicStaminaCost) {
+            return;
+        }
+        
+        this.magicCooldown = 3.0; // 3 second cooldown
+        this.stamina -= this.magicStaminaCost;
+        this.game.uiManager.updateStamina(this.stamina, this.maxStamina);
+        
+        // Create magic projectile
+        const projectilePos = this.mesh.position.clone().add(new THREE.Vector3(0, 1.5, 0));
+        const forward = new THREE.Vector3(0, 0, -1).applyEuler(new THREE.Euler(0, this.rotation.y, 0));
+        
+        this.game.particleSystem.createMagicProjectile(projectilePos, forward, this.game.enemyManager);
+        
+        // Visual feedback
+        this.game.uiManager.showMessage('Magic ability used!');
     }
 }

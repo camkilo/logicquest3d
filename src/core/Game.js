@@ -143,6 +143,7 @@ export class Game {
         this.particleSystem.update(delta);
         this.puzzleManager.update(delta);
         this.zoneManager.update(delta);
+        this.uiManager.updateCombatState(delta);
         
         // Update camera to follow player
         this.updateCamera();
