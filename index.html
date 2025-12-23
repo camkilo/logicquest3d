@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LogicQuest 3D - Cinematic RPG Adventure</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        
+        <!-- UI Overlays -->
+        <div id="ui-overlay">
+            <div id="health-bar">
+                <div class="ui-label">Health</div>
+                <div class="bar-container">
+                    <div id="health-fill" class="bar-fill"></div>
+                </div>
+            </div>
+            
+            <div id="inventory-panel">
+                <div class="ui-label">Inventory</div>
+                <div id="inventory-slots"></div>
+            </div>
+            
+            <div id="zone-indicator">
+                <span id="current-zone">Forest Zone</span>
+            </div>
+            
+            <div id="quest-log">
+                <div class="ui-label">Current Objective</div>
+                <div id="quest-text">Explore the forest and collect resources</div>
+            </div>
+        </div>
+        
+        <!-- Crafting Panel -->
+        <div id="crafting-panel" class="panel hidden">
+            <h2>Crafting</h2>
+            <div id="crafting-slots">
+                <div class="craft-slot" id="craft-slot-1">Empty</div>
+                <div class="craft-slot" id="craft-slot-2">Empty</div>
+                <div class="craft-slot" id="craft-slot-3">Empty</div>
+            </div>
+            <button id="craft-button">Craft Item</button>
+            <button id="close-craft">Close</button>
+        </div>
+        
+        <!-- Game Messages -->
+        <div id="message-panel"></div>
+        
+        <!-- Controls Help -->
+        <div id="controls-help">
+            <h3>Controls</h3>
+            <p><strong>WASD</strong> - Move</p>
+            <p><strong>Mouse</strong> - Look Around</p>
+            <p><strong>Space</strong> - Jump</p>
+            <p><strong>E</strong> - Interact/Collect</p>
+            <p><strong>C</strong> - Open Crafting</p>
+            <p><strong>Left Click</strong> - Attack</p>
+            <p><strong>Shift</strong> - Sprint</p>
+        </div>
+    </div>
+    
+    <script type="module" src="/src/main.js"></script>
+</body>
+</html>
