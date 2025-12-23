@@ -49,8 +49,18 @@ export class CraftingSystem {
     createAnvil(position) {
         const group = new THREE.Group();
         
-        // Anvil base
-        const baseGeometry = new THREE.BoxGeometry(1, 0.5, 1);
+        // Anvil base - use cylinder instead of box for smoother appearance
+        const baseGeometry = new THREE.CylinderGeometry(0.55, 0.6, 0.5, 32);
+        
+        // Add wear and dents to base
+        const basePositions = baseGeometry.attributes.position.array;
+        for (let i = 0; i < basePositions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.03;
+            basePositions[i] += noise;
+            basePositions[i + 2] += noise;
+        }
+        baseGeometry.computeVertexNormals();
+        
         const metalMaterial = new THREE.MeshStandardMaterial({
             color: 0x5a5a5a,
             metalness: 0.8,
@@ -62,8 +72,18 @@ export class CraftingSystem {
         base.receiveShadow = true;
         group.add(base);
         
-        // Anvil top
-        const topGeometry = new THREE.CylinderGeometry(0.4, 0.6, 0.4, 8);
+        // Anvil top with higher detail
+        const topGeometry = new THREE.CylinderGeometry(0.4, 0.6, 0.4, 32);
+        
+        // Add hammer marks and wear
+        const topPositions = topGeometry.attributes.position.array;
+        for (let i = 0; i < topPositions.length; i += 3) {
+            const noise = (Math.random() - 0.5) * 0.04;
+            topPositions[i] += noise;
+            topPositions[i + 2] += noise;
+        }
+        topGeometry.computeVertexNormals();
+        
         const top = new THREE.Mesh(topGeometry, metalMaterial);
         top.position.y = 0.7;
         top.rotation.y = Math.PI / 8;
@@ -81,8 +101,22 @@ export class CraftingSystem {
     createAltar(position) {
         const group = new THREE.Group();
         
-        // Altar platform
-        const platformGeometry = new THREE.CylinderGeometry(1.5, 1.8, 0.5, 8);
+        // Altar platform with high detail
+        const platformGeometry = new THREE.CylinderGeometry(1.5, 1.8, 0.5, 32);
+        
+        // Add carved patterns to platform
+        const platformPositions = platformGeometry.attributes.position.array;
+        for (let i = 0; i < platformPositions.length; i += 3) {
+            const x = platformPositions[i];
+            const z = platformPositions[i + 2];
+            const angle = Math.atan2(z, x);
+            const carving = Math.sin(angle * 6) * 0.02;
+            const noise = (Math.random() - 0.5) * 0.03;
+            platformPositions[i] += carving + noise;
+            platformPositions[i + 2] += carving + noise;
+        }
+        platformGeometry.computeVertexNormals();
+        
         const stoneMaterial = new THREE.MeshStandardMaterial({
             color: 0x6a6a5a,
             roughness: 0.9,
@@ -94,8 +128,8 @@ export class CraftingSystem {
         platform.receiveShadow = true;
         group.add(platform);
         
-        // Altar surface with glow
-        const surfaceGeometry = new THREE.CylinderGeometry(1.2, 1.2, 0.2, 8);
+        // Altar surface with glow - higher detail
+        const surfaceGeometry = new THREE.CylinderGeometry(1.2, 1.2, 0.2, 32);
         const glowMaterial = new THREE.MeshStandardMaterial({
             color: 0x8a7a6a,
             emissive: 0x6a5a4a,

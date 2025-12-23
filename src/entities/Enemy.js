@@ -76,28 +76,28 @@ export class Enemy {
     createMesh(position) {
         let geometry, color, size;
         
-        // Create enemy geometry based on type
+        // Create enemy geometry based on type with high detail
         switch (this.type) {
             case 'fast_melee':
-                // Small, agile creature
-                geometry = new THREE.ConeGeometry(0.4, 1.2, 6);
+                // Agile creature with smooth high-poly cone
+                geometry = new THREE.ConeGeometry(0.4, 1.2, 32);
                 color = 0xaa3333;
                 size = 0.9;
                 break;
             case 'ranged_magic':
-                // Floating magical enemy
-                geometry = new THREE.OctahedronGeometry(0.6);
+                // Floating magical enemy with detailed octahedron
+                geometry = new THREE.OctahedronGeometry(0.6, 1);
                 color = 0x6633aa;
                 size = 1.0;
                 break;
             case 'slow_heavy':
-                // Large guardian
-                geometry = new THREE.BoxGeometry(1, 2, 1);
+                // Large guardian with humanoid capsule proportions
+                geometry = new THREE.CapsuleGeometry(0.5, 1, 16, 32);
                 color = 0x555555;
                 size = 1.3;
                 break;
             default:
-                geometry = new THREE.ConeGeometry(0.5, 1.5, 6);
+                geometry = new THREE.ConeGeometry(0.5, 1.5, 32);
                 color = 0xff3333;
                 size = 1.0;
         }

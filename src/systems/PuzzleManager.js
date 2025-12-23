@@ -358,13 +358,25 @@ class EnergyRoutingPuzzle {
         
         this.game.scene.add(this.crystal);
         
-        // Create rotatable mirrors
+        // Create angled reflective mirrors (not flat boxes, but curved reflective surfaces)
         for (let i = 0; i < 2; i++) {
-            const mirrorGeometry = new THREE.BoxGeometry(0.1, 2, 2);
+            // Use a curved plane for more realistic mirror
+            const mirrorGeometry = new THREE.PlaneGeometry(2, 2, 16, 16);
+            
+            // Add slight curvature to mirror surface
+            const positions = mirrorGeometry.attributes.position.array;
+            for (let j = 0; j < positions.length; j += 3) {
+                const x = positions[j];
+                const y = positions[j + 1];
+                // Slight concave curve for realistic mirror
+                positions[j + 2] = (x * x + y * y) * 0.02;
+            }
+            mirrorGeometry.computeVertexNormals();
+            
             const mirrorMaterial = new THREE.MeshStandardMaterial({
                 color: 0x8a9aaa,
-                metalness: 0.9,
-                roughness: 0.1
+                metalness: 0.95,
+                roughness: 0.05
             });
             const mirror = new THREE.Mesh(mirrorGeometry, mirrorMaterial);
             mirror.position.set(
@@ -381,8 +393,8 @@ class EnergyRoutingPuzzle {
             this.mirrors.push(mirror);
         }
         
-        // Create target (door or bridge to activate)
-        const targetGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 16);
+        // Create target with higher detail
+        const targetGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 32);
         const targetMaterial = new THREE.MeshStandardMaterial({
             color: 0x5a5a5a,
             emissive: 0x3a3a3a,
@@ -467,8 +479,18 @@ class SequenceLeverPuzzle {
         for (let i = 0; i < 4; i++) {
             const group = new THREE.Group();
             
-            // Lever base
-            const baseGeometry = new THREE.BoxGeometry(0.5, 1, 0.5);
+            // Lever base - use cylinder instead of box for organic look
+            const baseGeometry = new THREE.CylinderGeometry(0.3, 0.35, 1, 32);
+            
+            // Add wear and texture to base
+            const basePositions = baseGeometry.attributes.position.array;
+            for (let j = 0; j < basePositions.length; j += 3) {
+                const noise = (Math.random() - 0.5) * 0.03;
+                basePositions[j] += noise;
+                basePositions[j + 2] += noise;
+            }
+            baseGeometry.computeVertexNormals();
+            
             const baseMaterial = new THREE.MeshStandardMaterial({
                 color: 0x5a5a4a,
                 roughness: 0.9,
@@ -480,8 +502,20 @@ class SequenceLeverPuzzle {
             base.receiveShadow = true;
             group.add(base);
             
-            // Lever handle
-            const handleGeometry = new THREE.BoxGeometry(0.2, 1.5, 0.2);
+            // Lever handle - use cylinder for smooth rounded handle
+            const handleGeometry = new THREE.CylinderGeometry(0.12, 0.1, 1.5, 24);
+            
+            // Add grip texture
+            const handlePositions = handleGeometry.attributes.position.array;
+            for (let j = 0; j < handlePositions.length; j += 3) {
+                const y = handlePositions[j + 1];
+                const angle = Math.atan2(handlePositions[j + 2], handlePositions[j]);
+                const grip = Math.sin(y * 10) * 0.01 + Math.cos(angle * 8) * 0.008;
+                handlePositions[j] += grip;
+                handlePositions[j + 2] += grip;
+            }
+            handleGeometry.computeVertexNormals();
+            
             const handleMaterial = new THREE.MeshStandardMaterial({
                 color: 0x7a6a5a,
                 roughness: 0.85,
