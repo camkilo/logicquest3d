@@ -34,14 +34,16 @@ export class ParticleSystem {
         particles.position.copy(position);
         this.scene.add(particles);
         
-        this.particleGroups.push({
+        const group = {
             particles: particles,
             lifetime: 0.5,
             update: (delta) => {
                 particles.position.y += delta * 2;
-                particles.material.opacity = this.particleGroups.find(g => g.particles === particles)?.lifetime || 0;
+                particles.material.opacity = group.lifetime;
             }
-        });
+        };
+        
+        this.particleGroups.push(group);
     }
     
     createHitEffect(position) {
@@ -66,7 +68,7 @@ export class ParticleSystem {
             ));
         }
         
-        this.particleGroups.push({
+        const group = {
             particles: particles,
             lifetime: 0.3,
             velocities: velocities,
@@ -79,9 +81,11 @@ export class ParticleSystem {
                     velocities[i].y -= 9.8 * delta; // gravity
                 }
                 particles.geometry.attributes.position.needsUpdate = true;
-                particles.material.opacity = this.particleGroups.find(g => g.particles === particles)?.lifetime || 0;
+                particles.material.opacity = group.lifetime;
             }
-        });
+        };
+        
+        this.particleGroups.push(group);
     }
     
     createExplosionEffect(position) {
@@ -110,7 +114,7 @@ export class ParticleSystem {
             ));
         }
         
-        this.particleGroups.push({
+        const group = {
             particles: particles,
             lifetime: 1.0,
             velocities: velocities,
@@ -122,11 +126,13 @@ export class ParticleSystem {
                     positions[i * 3 + 2] += velocities[i].z * delta;
                 }
                 particles.geometry.attributes.position.needsUpdate = true;
-                const lifetimeRatio = this.particleGroups.find(g => g.particles === particles)?.lifetime || 0;
+                const lifetimeRatio = group.lifetime;
                 particles.material.opacity = lifetimeRatio;
                 particles.material.size = 0.3 * (1 + (1 - lifetimeRatio));
             }
-        });
+        };
+        
+        this.particleGroups.push(group);
     }
     
     createCollectEffect(position) {
@@ -142,17 +148,19 @@ export class ParticleSystem {
         particles.position.copy(position);
         this.scene.add(particles);
         
-        this.particleGroups.push({
+        const group = {
             particles: particles,
             lifetime: 1.0,
             startY: position.y,
             update: (delta) => {
                 particles.position.y += delta * 3;
                 particles.rotation.y += delta * 2;
-                const lifetimeRatio = this.particleGroups.find(g => g.particles === particles)?.lifetime || 0;
+                const lifetimeRatio = group.lifetime;
                 particles.material.opacity = lifetimeRatio;
             }
-        });
+        };
+        
+        this.particleGroups.push(group);
     }
     
     createMagicEffect(position, color = 0x00ffff) {

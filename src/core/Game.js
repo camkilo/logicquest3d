@@ -64,7 +64,6 @@ export class Game {
         this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
         this.renderer.toneMappingExposure = 1.2;
         this.renderer.outputColorSpace = THREE.SRGBColorSpace;
-        this.renderer.physicallyCorrectLights = true;
         
         // Initialize systems
         this.inputManager = new InputManager();

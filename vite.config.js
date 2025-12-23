@@ -8,9 +8,13 @@ export default defineConfig({
     emptyOutDir: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'three': ['three'],
-          'postprocessing': ['postprocessing']
+        manualChunks(id) {
+          if (id.includes('node_modules/three')) {
+            return 'three';
+          }
+          if (id.includes('node_modules/postprocessing')) {
+            return 'postprocessing';
+          }
         }
       }
     }
