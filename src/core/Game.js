@@ -36,11 +36,11 @@ export class Game {
     init() {
         // Create scene
         this.scene = new THREE.Scene();
-        this.scene.fog = new THREE.FogExp2(0x87ceeb, 0.015);
+        // Dark fantasy fog - muted green-gray with volumetric density
+        this.scene.fog = new THREE.FogExp2(0x3a4a3a, 0.025);
         
-        // Add beautiful sky gradient background
-        const skyColor = new THREE.Color(0x87ceeb);
-        const groundColor = new THREE.Color(0xb97a57);
+        // Dark fantasy background - cold stone gray
+        const skyColor = new THREE.Color(0x4a5a5a);
         this.scene.background = skyColor;
         
         // Create camera
@@ -78,17 +78,17 @@ export class Game {
         this.player = new Player(this);
         this.scene.add(this.player.mesh);
         
-        // Add ambient light
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+        // Dark fantasy ambient light - very low intensity
+        const ambientLight = new THREE.AmbientLight(0x3a4a3a, 0.2);
         this.scene.add(ambientLight);
         
-        // Add hemisphere light for realistic sky lighting
-        const hemisphereLight = new THREE.HemisphereLight(0x87ceeb, 0xb97a57, 0.6);
+        // Hemisphere light with muted cold stone gray sky and warm torchlight ground
+        const hemisphereLight = new THREE.HemisphereLight(0x4a5a5a, 0x8b6f47, 0.4);
         this.scene.add(hemisphereLight);
         
-        // Add directional light (sun) with realistic settings
-        const directionalLight = new THREE.DirectionalLight(0xfff5e6, 1.2);
-        directionalLight.position.set(50, 100, 50);
+        // Physically based directional light with warm torchlight amber tone
+        const directionalLight = new THREE.DirectionalLight(0xd4a574, 0.8);
+        directionalLight.position.set(30, 80, 40);
         directionalLight.castShadow = true;
         directionalLight.shadow.mapSize.width = 4096;
         directionalLight.shadow.mapSize.height = 4096;
@@ -99,16 +99,16 @@ export class Game {
         directionalLight.shadow.camera.top = 100;
         directionalLight.shadow.camera.bottom = -100;
         directionalLight.shadow.bias = -0.0001;
-        directionalLight.shadow.radius = 2;
+        directionalLight.shadow.radius = 3;
         this.scene.add(directionalLight);
         
-        // Add subtle rim light for depth
-        const rimLight = new THREE.DirectionalLight(0x6699ff, 0.3);
+        // Add subtle cold rim light for depth and contrast
+        const rimLight = new THREE.DirectionalLight(0x4a5a6a, 0.2);
         rimLight.position.set(-50, 50, -50);
         this.scene.add(rimLight);
         
-        // Initialize first zone
-        this.zoneManager.loadZone('forest');
+        // Initialize first zone - Forest Ruins
+        this.zoneManager.loadZone('forest_ruins');
         
         // Initialize post-processing for stunning visuals
         try {
@@ -143,6 +143,8 @@ export class Game {
         this.particleSystem.update(delta);
         this.puzzleManager.update(delta);
         this.zoneManager.update(delta);
+        this.craftingSystem.update(delta);
+        this.uiManager.updateCombatState(delta);
         
         // Update camera to follow player
         this.updateCamera();

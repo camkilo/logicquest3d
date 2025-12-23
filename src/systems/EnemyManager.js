@@ -17,7 +17,10 @@ export class EnemyManager {
         // Clear existing enemies
         this.clearEnemies();
         
-        // Spawn new enemies based on zone
+        // Determine enemy types for the zone
+        let enemyTypes = ['fast_melee', 'ranged_magic', 'slow_heavy'];
+        
+        // Spawn new enemies based on zone with variety
         for (let i = 0; i < count; i++) {
             const angle = (i / count) * Math.PI * 2;
             const radius = 15 + Math.random() * 10;
@@ -27,7 +30,9 @@ export class EnemyManager {
                 Math.sin(angle) * radius
             );
             
-            this.spawnEnemy(position);
+            // Select enemy type in rotation to ensure variety
+            const type = enemyTypes[i % enemyTypes.length];
+            this.spawnEnemy(position, type);
         }
     }
     

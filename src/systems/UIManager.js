@@ -2,10 +2,16 @@ export class UIManager {
     constructor(game) {
         this.game = game;
         this.healthFill = document.getElementById('health-fill');
+        this.staminaFill = document.getElementById('stamina-fill');
         this.inventorySlots = document.getElementById('inventory-slots');
         this.zoneIndicator = document.getElementById('current-zone');
         this.questText = document.getElementById('quest-text');
         this.messagePanel = document.getElementById('message-panel');
+        this.uiOverlay = document.getElementById('ui-overlay');
+        
+        // Combat state for HUD fading
+        this.inCombat = false;
+        this.combatTimer = 0;
         
         this.initializeInventorySlots();
     }
@@ -23,6 +29,28 @@ export class UIManager {
     updateHealth(current, max) {
         const percentage = (current / max) * 100;
         this.healthFill.style.width = percentage + '%';
+    }
+    
+    updateStamina(current, max) {
+        const percentage = (current / max) * 100;
+        this.staminaFill.style.width = percentage + '%';
+    }
+    
+    setInCombat(inCombat) {
+        this.inCombat = inCombat;
+        if (inCombat) {
+            this.combatTimer = 5; // Fade after 5 seconds
+            this.uiOverlay.classList.remove('faded');
+        }
+    }
+    
+    updateCombatState(delta) {
+        if (this.inCombat && this.combatTimer > 0) {
+            this.combatTimer -= delta;
+            if (this.combatTimer <= 0) {
+                this.uiOverlay.classList.add('faded');
+            }
+        }
     }
     
     updateInventory(items) {
@@ -45,9 +73,9 @@ export class UIManager {
     
     updateZoneIndicator(zoneName) {
         const zoneNames = {
-            forest: 'Forest Zone',
-            cave: 'Dark Cave',
-            ruins: 'Ancient Ruins'
+            forest_ruins: 'Forest Ruins',
+            underground_chamber: 'Underground Chamber',
+            ritual_courtyard: 'Ritual Courtyard'
         };
         this.zoneIndicator.textContent = zoneNames[zoneName] || zoneName;
     }

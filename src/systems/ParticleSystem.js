@@ -232,12 +232,14 @@ export class ParticleSystem {
     createAmbientParticles(zone) {
         // Create floating ambient particles for atmosphere
         const particleCount = 100;
-        const color = zone === 'forest' ? 0x88ff88 : zone === 'cave' ? 0x8888ff : 0xffaa00;
+        const color = zone === 'forest_ruins' ? 0x6a8a6a : 
+                      zone === 'underground_chamber' ? 0x5a7a8a : 
+                      0xaa8a6a;
         
         const particles = this.createParticles({
             count: particleCount,
             color: color,
-            size: 0.1,
+            size: 0.08,
             spread: 50,
             velocity: 0,
             lifetime: Infinity
@@ -246,9 +248,9 @@ export class ParticleSystem {
         const velocities = [];
         for (let i = 0; i < particleCount; i++) {
             velocities.push(new THREE.Vector3(
-                (Math.random() - 0.5) * 0.5,
-                Math.random() * 0.3,
-                (Math.random() - 0.5) * 0.5
+                (Math.random() - 0.5) * 0.3,
+                Math.random() * 0.2,
+                (Math.random() - 0.5) * 0.3
             ));
         }
         
@@ -275,5 +277,114 @@ export class ParticleSystem {
         });
         
         return particles;
+    }
+    
+    createDodgeEffect(position) {
+        const particles = this.createParticles({
+            count: 30,
+            color: 0x6688ff,
+            size: 0.25,
+            spread: 1.5,
+            velocity: 2,
+            lifetime: 0.4
+        });
+        
+        particles.position.copy(position);
+        this.scene.add(particles);
+        
+        const group = {
+            particles: particles,
+            lifetime: 0.4,
+            update: (delta) => {
+                particles.rotation.y += delta * 3;
+                particles.material.opacity = group.lifetime * 2.5;
+            }
+        };
+        
+        this.particleGroups.push(group);
+    }
+    
+    createMagicProjectile(startPos, direction, enemyManager) {
+        // Create a glowing projectile
+        const geometry = new THREE.SphereGeometry(0.2, 8, 8);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0x88aaff,
+            emissive: 0x88aaff,
+            transparent: true,
+            opacity: 0.9
+        });
+        const projectile = new THREE.Mesh(geometry, material);
+        projectile.position.copy(startPos);
+        this.scene.add(projectile);
+        
+        const speed = 15;
+        const lifetime = 3.0;
+        const damage = 30;
+        
+        const group = {
+            particles: projectile,
+            lifetime: lifetime,
+            update: (delta) => {
+                // Move projectile
+                projectile.position.add(direction.clone().multiplyScalar(speed * delta));
+                
+                // Check collision with enemies
+                for (const enemy of enemyManager.enemies) {
+                    if (!enemy.isDead) {
+                        const distance = projectile.position.distanceTo(enemy.mesh.position);
+                        if (distance < 1.5) {
+                            enemy.takeDamage(damage);
+                            group.lifetime = 0; // Destroy projectile
+                            this.createHitEffect(projectile.position);
+                            break;
+                        }
+                    }
+                }
+                
+                // Fade out
+                projectile.material.opacity = Math.min(0.9, group.lifetime * 0.9);
+            }
+        };
+        
+        this.particleGroups.push(group);
+    }
+    
+    createEnemyMagicProjectile(startPos, direction, damage, player) {
+        // Create an enemy magic projectile
+        const geometry = new THREE.SphereGeometry(0.15, 8, 8);
+        const material = new THREE.MeshBasicMaterial({
+            color: 0xaa3388,
+            emissive: 0xaa3388,
+            transparent: true,
+            opacity: 0.9
+        });
+        const projectile = new THREE.Mesh(geometry, material);
+        projectile.position.copy(startPos);
+        this.scene.add(projectile);
+        
+        const speed = 10;
+        const lifetime = 4.0;
+        
+        const group = {
+            particles: projectile,
+            lifetime: lifetime,
+            update: (delta) => {
+                // Move projectile
+                projectile.position.add(direction.clone().multiplyScalar(speed * delta));
+                
+                // Check collision with player
+                const distance = projectile.position.distanceTo(player.mesh.position);
+                if (distance < 1.0) {
+                    player.takeDamage(damage);
+                    group.lifetime = 0; // Destroy projectile
+                    this.createHitEffect(projectile.position);
+                }
+                
+                // Fade out
+                projectile.material.opacity = Math.min(0.9, group.lifetime * 0.8);
+            }
+        };
+        
+        this.particleGroups.push(group);
     }
 }
